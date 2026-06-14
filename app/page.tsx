@@ -51,7 +51,7 @@ export default function Home() {
       <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur border-b border-border">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center text-primary-foreground font-bold shadow">
+            <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold shadow">
               +
             </div>
             <span className="text-xl font-bold tracking-tight">MediBook</span>
@@ -59,7 +59,7 @@ export default function Home() {
 
           <Link
             href="/login"
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:opacity-90 transition shadow-sm"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition shadow-sm"
           >
             Sign In
             <ArrowRight className="size-4" />
@@ -82,13 +82,13 @@ export default function Home() {
         <div className="absolute inset-0 bg-background/80 backdrop-blur-[2px]" />
 
         {/* Gradient Accent */}
-        <div className="absolute inset-0 bg-linear-to-br from-primary/30 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-br from-blue-600/20 via-transparent to-transparent" />
 
         <div className="relative z-10 max-w-7xl mx-auto px-6 pt-20 pb-16 grid lg:grid-cols-2 gap-12 items-center">
           {/* LEFT */}
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold mb-6 border border-border bg-card/60 backdrop-blur">
-              <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" />
               Trusted Healthcare Platform
             </div>
 
@@ -104,7 +104,7 @@ export default function Home() {
             <div className="flex items-center gap-4">
               <Link
                 href="/login"
-                className="px-6 py-3 rounded-xl bg-primary text-primary-foreground font-semibold shadow hover:opacity-90 transition"
+                className="px-6 py-3 rounded-xl bg-blue-600 text-white font-semibold shadow hover:bg-blue-700 transition"
               >
                 Get Started
               </Link>
@@ -138,7 +138,7 @@ export default function Home() {
           <div className="hidden lg:block">
             <div className="bg-card/90 backdrop-blur rounded-2xl shadow-xl p-6 max-w-sm mx-auto border border-border">
               <div className="flex items-center gap-3 mb-5">
-                <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold">
+                <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold">
                   DR
                 </div>
                 <div>
@@ -149,7 +149,7 @@ export default function Home() {
                 </div>
               </div>
 
-              <button className="w-full py-3 bg-primary text-primary-foreground text-sm font-semibold rounded-xl hover:opacity-90 transition">
+              <button className="w-full py-3 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition">
                 Confirm Booking
               </button>
             </div>
@@ -158,7 +158,7 @@ export default function Home() {
       </section>
 
       {/* STATS */}
-      <section className="bg-primary text-primary-foreground py-14">
+      <section className="bg-blue-600 text-white py-14">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             {STATS.map((s) => (
@@ -198,7 +198,7 @@ export default function Home() {
 
       {/* FOOTER */}
       <footer className="bg-card border-t border-border py-10 text-center text-sm text-muted-foreground">
-        © 2025 MediBook. All rights reserved.
+        © {new Date().getFullYear()} MediBook. All rights reserved.
       </footer>
     </div>
   );

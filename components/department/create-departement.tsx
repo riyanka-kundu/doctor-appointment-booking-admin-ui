@@ -1,27 +1,28 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, useForm } from "react-hook-form";
+import { ArrowLeft, Loader2 } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
-
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Field,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
 
 import { createDepartment } from "@/redux/slice/department-slice";
 import { AppDispatch, RootState } from "@/redux/store/store";
 import { DepartmentSchema, TDepartmentPayload } from "@/schema/department";
-import { useRouter } from "next/navigation";
 
 const DepartmentForm = () => {
-  const form = useForm<TDepartmentPayload>({
+  const dispatch = useDispatch<AppDispatch>();
+  const { loading } = useSelector((state: RootState) => state.department);
+  const router = useRouter();
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<TDepartmentPayload>({
     resolver: zodResolver(DepartmentSchema),
     defaultValues: {
       name: "",
@@ -29,16 +30,11 @@ const DepartmentForm = () => {
     },
   });
 
-  const dispatch = useDispatch<AppDispatch>();
-  const { loading } = useSelector((state: RootState) => state.department);
-  const router = useRouter();
-
   async function onSubmit(data: TDepartmentPayload) {
     try {
       const res = await dispatch(createDepartment(data)).unwrap();
       toast.success(res.message);
-
-      form.reset();
+      reset();
       router.push("/department");
     } catch (error) {
       toast.error(error as string);
@@ -46,54 +42,81 @@ const DepartmentForm = () => {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100 px-4">
-      <Card className="w-full max-w-md shadow-xl rounded-2xl">
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold text-center">
-            Create Department
-          </CardTitle>
-        </CardHeader>
+    <div className="min-h-full bg-slate-50 dark:bg-slate-950 p-6 md:p-8">
+      <div className="max-w-lg mx-auto space-y-6">
+        {/* Back link */}
+        <Link
+          href="/department"
+          className="inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition"
+        >
+          <ArrowLeft size={16} />
+          Back to Departments
+        </Link>
 
-        <CardContent>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FieldGroup>
-              {/* Name */}
-              <Controller
-                name="name"
-                control={form.control}
-                render={({ field, fieldState }) => (
-                  <Field>
-                    <FieldLabel>Name</FieldLabel>
-                    <Input {...field} placeholder="Enter department name" />
-                    {fieldState.error && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
-                )}
+        {/* Form Card */}
+        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
+          <div className="px-6 py-5 border-b border-slate-200 dark:border-slate-800">
+            <h1 className="text-xl font-black text-slate-900 dark:text-white">
+              Create Department
+            </h1>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+              Add a new department to your hospital
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-5">
+            {/* Name */}
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                Department Name
+              </label>
+              <input
+                {...register("name")}
+                placeholder="Enter department name"
+                disabled={loading}
+                className="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
               />
+              {errors.name && (
+                <p className="text-sm text-red-500">{errors.name.message}</p>
+              )}
+            </div>
 
-              {/* Description */}
-              <Controller
-                name="description"
-                control={form.control}
-                render={({ field, fieldState }) => (
-                  <Field>
-                    <FieldLabel>Description</FieldLabel>
-                    <Input {...field} placeholder="Enter description" />
-                    {fieldState.error && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
-                )}
+            {/* Description */}
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                Description
+              </label>
+              <input
+                {...register("description")}
+                placeholder="Enter description"
+                disabled={loading}
+                className="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
               />
-            </FieldGroup>
+              {errors.description && (
+                <p className="text-sm text-red-500">
+                  {errors.description.message}
+                </p>
+              )}
+            </div>
 
-            <Button type="submit" className="w-full mt-4" disabled={loading}>
-              {loading ? "Creating..." : "Create Department"}
-            </Button>
+            {/* Submit */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-blue-600 hover:bg-blue-700 transition text-white py-3 rounded-xl font-semibold flex items-center justify-center disabled:opacity-70"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Creating...
+                </>
+              ) : (
+                "Create Department"
+              )}
+            </button>
           </form>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 };

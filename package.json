@@ -12,6 +12,7 @@
     "@base-ui/react": "^1.4.0",
     "@hookform/resolvers": "^5.2.2",
     "@phosphor-icons/react": "^2.1.10",
+    "@radix-ui/react-slot": "^1.2.5",
     "@reduxjs/toolkit": "^2.11.2",
     "axios": "^1.15.0",
     "class-variance-authority": "^0.7.1",

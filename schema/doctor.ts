@@ -14,3 +14,12 @@ export const createDoctorSchema = z.object({
 });
 
 export type TCreateDoctorSchemaPayload = z.infer<typeof createDoctorSchema>;
+
+export const UpdateDoctorSchema = z.object({
+  name: z.string().min(2).max(100).optional(),
+  departmentId: z.string().optional(),
+  fees: z.string().optional(),
+  schedule: scheduleSchema,
+});
+
+export type UpdateDoctorInput = z.infer<typeof UpdateDoctorSchema>;

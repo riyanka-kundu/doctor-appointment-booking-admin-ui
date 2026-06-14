@@ -1,27 +1,30 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft, Loader2 } from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
+import Link from "next/link";
+import { ArrowLeft, Loader2 } from "lucide-react";
+import { useParams, useRouter } from "next/navigation";
 
 import { listOfDepartment } from "@/redux/slice/department-slice";
-import { createDoctor } from "@/redux/slice/doctor-slice";
+import { detailsOfDoctor, updateDoctor } from "@/redux/slice/doctor-slice";
 import { AppDispatch, RootState } from "@/redux/store/store";
-import {
-  createDoctorSchema,
-  TCreateDoctorSchemaPayload,
-} from "@/schema/doctor";
+import { UpdateDoctorInput, UpdateDoctorSchema } from "@/schema/doctor";
+import { Skeleton } from "@/components/ui/skeleton";
 
-const DoctorForm = () => {
+const UpdateDoctor = () => {
   const dispatch = useDispatch<AppDispatch>();
+  const params = useParams();
+  const id = params.id as string;
 
-  const { loading } = useSelector((state: RootState) => state.doctor);
+  const { selectedDoctor, loading } = useSelector(
+    (state: RootState) => state.doctor,
+  );
   const { list: departments } = useSelector((state: RootState) => state.department);
+
   const router = useRouter();
 
   const {
@@ -29,8 +32,8 @@ const DoctorForm = () => {
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<TCreateDoctorSchemaPayload>({
-    resolver: zodResolver(createDoctorSchema),
+  } = useForm<UpdateDoctorInput>({
+    resolver: zodResolver(UpdateDoctorSchema),
     defaultValues: {
       name: "",
       departmentId: "",
@@ -45,17 +48,41 @@ const DoctorForm = () => {
 
   useEffect(() => {
     dispatch(listOfDepartment());
-  }, [dispatch]);
+    dispatch(detailsOfDoctor(id));
+  }, [dispatch, id]);
 
-  async function onSubmit(data: TCreateDoctorSchemaPayload) {
+  useEffect(() => {
+    if (selectedDoctor) {
+      reset({
+        name: selectedDoctor.name,
+        departmentId: selectedDoctor.departmentId,
+        fees: selectedDoctor.fees,
+        schedule: {
+          startTime: selectedDoctor.schedule?.startTime || "",
+          endTime: selectedDoctor.schedule?.endTime || "",
+          slotDuration: selectedDoctor.schedule?.slotDuration || 0,
+        },
+      });
+    }
+  }, [selectedDoctor, reset]);
+
+  async function onSubmit(data: UpdateDoctorInput) {
     try {
-      const res = await dispatch(createDoctor(data)).unwrap();
-      toast.success(res.message);
+      await dispatch(updateDoctor({ id, payload: data })).unwrap();
+      toast.success("Doctor updated successfully");
       router.push("/doctors");
-      reset();
     } catch (error) {
       toast.error(error as string);
     }
+  }
+
+  if (loading && !selectedDoctor) {
+    return (
+      <div className="p-6 md:p-8 max-w-xl mx-auto space-y-4">
+        <Skeleton className="h-6 w-32 rounded-xl" />
+        <Skeleton className="h-125 rounded-2xl" />
+      </div>
+    );
   }
 
   return (
@@ -70,14 +97,14 @@ const DoctorForm = () => {
           Back to Doctors
         </Link>
 
-        {/* Form Card */}
+        {/* Update Form Card */}
         <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
           <div className="px-6 py-5 border-b border-slate-200 dark:border-slate-800">
             <h1 className="text-xl font-black text-slate-900 dark:text-white">
-              Create Doctor
+              Update Doctor
             </h1>
             <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-              Add a new doctor to the system
+              Modify details for Dr. {selectedDoctor?.name || ""}
             </p>
           </div>
 
@@ -212,10 +239,10 @@ const DoctorForm = () => {
               {loading ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Creating...
+                  Updating...
                 </>
               ) : (
-                "Create Doctor"
+                "Update Doctor"
               )}
             </button>
           </form>
@@ -225,4 +252,4 @@ const DoctorForm = () => {
   );
 };
 
-export default DoctorForm;
+export default UpdateDoctor;

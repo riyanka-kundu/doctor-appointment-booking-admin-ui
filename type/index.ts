@@ -52,3 +52,24 @@ export interface IDoctorPaginationResponse {
   totalPages: number;
   data: IDoctor[];
 }
+export interface IApiDataResponse<T> {
+  status: boolean;
+  message: string;
+  data: T;
+}
+export interface IAppointment {
+  _id: string;
+  doctorId: string;
+  userId: string;
+  name: string;
+  date: string;
+  time: string;
+  status: "Pending" | "Confirmed" | "Cancelled";
+  createdAt: string;
+  __v: number;
+}
+
+export interface IAppointmentListResponse {
+  message: string;
+  data: IAppointment[];
+}

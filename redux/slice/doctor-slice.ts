@@ -3,8 +3,13 @@ import { AxiosError } from "axios";
 
 import { axiosInstance } from "@/lib/api";
 import { Endpoints } from "@/lib/endpoints";
-import { TCreateDoctorSchemaPayload } from "@/schema/doctor";
-import { IDepartment, IDoctor, IDoctorPaginationResponse } from "@/type";
+import { TCreateDoctorSchemaPayload, UpdateDoctorInput } from "@/schema/doctor";
+import {
+  IApiDataResponse,
+  IDepartment,
+  IDoctor,
+  IDoctorPaginationResponse,
+} from "@/type";
 
 type CreateDoctorResponse = {
   status: boolean;
@@ -62,13 +67,53 @@ export const detailsOfDoctor = createAsyncThunk<
   { rejectValue: string }
 >("admin/doctor/details", async (id, { rejectWithValue }) => {
   try {
-    const res = await axiosInstance.get<IDoctor>(Endpoints.doctor.details(id));
-
-    return res.data;
+    const res = await axiosInstance.get<IApiDataResponse<IDoctor>>(
+      Endpoints.doctor.details(id),
+    );
+    return res.data.data;
   } catch (error) {
     const err = error as AxiosError<{ message: string }>;
     return rejectWithValue(
       err.response?.data?.message || "Failed to fetch doctor details",
+    );
+  }
+});
+
+export const updateDoctor = createAsyncThunk<
+  IDoctor,
+  { id: string; payload: UpdateDoctorInput },
+  { rejectValue: string }
+>("admin/doctor/update", async ({ id, payload }, { rejectWithValue }) => {
+  try {
+    const res = await axiosInstance.post<IApiDataResponse<IDoctor>>(
+      Endpoints.doctor.update,
+      { ...payload, id },
+    );
+    return res.data.data;
+  } catch (error) {
+    const err = error as AxiosError<{ message: string }>;
+    return rejectWithValue(
+      err.response?.data?.message || "Failed to update doctor",
+    );
+  }
+});
+export const deleteDoctor = createAsyncThunk<
+  string,
+  string,
+  { rejectValue: string }
+>("admin/doctor/delete", async (id, { rejectWithValue }) => {
+  try {
+    const res = await axiosInstance.post<{ id: string }>(
+      Endpoints.doctor.delete,
+      { id },
+    );
+
+    return res.data.id; // return deleted id
+  } catch (error) {
+    const err = error as AxiosError<{ message: string }>;
+
+    return rejectWithValue(
+      err.response?.data?.message || "Failed to remove doctor",
     );
   }
 });
@@ -137,6 +182,39 @@ const doctorSlice = createSlice({
       .addCase(detailsOfDoctor.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || "Failed to fetch doctor details";
+      })
+      .addCase(updateDoctor.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateDoctor.fulfilled, (state, action) => {
+        state.loading = false;
+
+        // update list
+        state.list = state.list.map((doc) =>
+          doc._id === action.payload._id ? action.payload : doc,
+        );
+
+        // update selected doctor if open
+        if (state.selectedDoctor?._id === action.payload._id) {
+          state.selectedDoctor = action.payload;
+        }
+      })
+      .addCase(updateDoctor.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || "Failed to update doctor";
+      })
+      .addCase(deleteDoctor.fulfilled, (state, action) => {
+        state.loading = false;
+
+        state.list = state.list.filter((doc) => doc._id !== action.payload);
+        if (state.selectedDoctor?._id === action.payload) {
+          state.selectedDoctor = null;
+        }
+      })
+      .addCase(deleteDoctor.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || "Failed to delete doctor";
       });
   },
 });
